@@ -24,6 +24,17 @@ def test_financials_table_cites_sources(client):
     assert "[1]" in table or "[2]" in table  # citation markers present
 
 
+def test_financials_table_derived_rows(client):
+    d = _build(client)
+    table = brief.render_financials_table(d)
+    # margins and growth computed from filed values, marked as derived
+    assert "| Operating margin | 29.8% | 31.5% | derived |" in table
+    assert "| Net margin | 25.3% | 24.0% | derived |" in table
+    # FY2023 growth needs FY2022 revenue, which the fixtures don't have
+    assert "| Revenue growth (YoY) | — | 2.0% | derived |" in table
+    assert "never by the LLM" in table
+
+
 def test_prompt_contains_rules_and_data(client):
     d = _build(client)
     prompt = brief.build_prompt(d)
