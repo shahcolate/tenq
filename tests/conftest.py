@@ -120,7 +120,10 @@ MDNA_BODY = (
     "program over the next twelve months. Critical accounting estimates, "
     "including those relating to revenue recognition and income taxes, were "
     "unchanged during the year and are discussed in the notes to the "
-    "consolidated financial statements."
+    "consolidated financial statements. The Company's effective tax rate for "
+    "the year reflected the impact of a one-time charge related to a state "
+    "aid decision, partially offset by a lower statutory rate on foreign "
+    "earnings and the benefit of research and development tax credits."
 )
 
 FAKE_10K_HTML = f"""

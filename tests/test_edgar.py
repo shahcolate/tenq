@@ -43,6 +43,9 @@ def test_filing_sections(client):
     assert "Net sales increased" in sections["mdna"]
     # TOC line must not be selected as the section body
     assert "......." not in sections["risk_factors"]
+    assert "......." not in sections["mdna"]
+    # the heading remainder must not leak into the extract
+    assert not sections["mdna"].lower().startswith("and analysis")
 
 
 def test_html_to_text_strips_script_and_style():

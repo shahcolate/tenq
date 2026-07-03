@@ -25,7 +25,8 @@ Hard rules:
 - Cite sources inline with bracketed reference numbers, e.g. [1], matching the
   numbered source list in the dossier. Every paragraph needs at least one citation.
 - Use exact figures from the filed-financials table; do not invent or round
-  beyond one decimal place.
+  beyond one decimal place. Rows marked "derived" are computed from the filed
+  rows above them — cite them with the source numbers of those filed rows.
 - No price targets, no buy/sell/hold ratings, no return predictions.
 - Markdown output with exactly these section headings (## level):
   Business snapshot, Financial trajectory, What management says (MD&A),
@@ -97,18 +98,16 @@ def _derived_rows(dossier: Dossier, years: list[int]) -> list[str]:
         cells = [pct(values[y]) if y in values else "—" for y in years]
         return f"| {label} | " + " | ".join(cells) + " | derived |"
 
+    # `y in revenue` (not truthiness) so a filed 0 still yields -100% growth;
+    # the prior-year truthiness check is the division-by-zero guard.
     growth = {y: revenue[y] / revenue[y - 1] - 1
-              for y in years if revenue.get(y) and revenue.get(y - 1)}
-    margins = {}
+              for y in years if y in revenue and revenue.get(y - 1)}
+    rows = [row("Revenue growth (YoY)", growth)]
     for label, source in [("Operating margin", "Operating income"),
                           ("Net margin", "Net income")]:
         income = usd.get(source, {})
-        margins[label] = {y: income[y] / revenue[y]
-                          for y in years if y in income and revenue.get(y)}
-
-    rows = [row("Revenue growth (YoY)", growth),
-            row("Operating margin", margins["Operating margin"]),
-            row("Net margin", margins["Net margin"])]
+        rows.append(row(label, {y: income[y] / revenue[y]
+                                for y in years if y in income and revenue.get(y)}))
     return [r for r in rows if r]
 
 

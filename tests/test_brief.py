@@ -35,6 +35,14 @@ def test_financials_table_derived_rows(client):
     assert "never by the LLM" in table
 
 
+def test_derived_growth_handles_zero_revenue(client):
+    d = _build(client)
+    revenue = next(s for s in d.metrics if s.label == "Revenue")
+    revenue.points[-1].val = 0.0  # wind-down filer: filed revenue of 0
+    table = brief.render_financials_table(d)
+    assert "| Revenue growth (YoY) | — | -100.0% | derived |" in table
+
+
 def test_prompt_contains_rules_and_data(client):
     d = _build(client)
     prompt = brief.build_prompt(d)
