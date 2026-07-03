@@ -58,6 +58,8 @@ def _anthropic(prompt: str, model: str, max_tokens: int) -> str:
     except ImportError as exc:
         raise LLMError("The anthropic package is required: pip install anthropic") from exc
 
+    if not os.environ.get("ANTHROPIC_API_KEY"):
+        raise LLMError("ANTHROPIC_API_KEY is not set (required for --provider anthropic).")
     client = anthropic.Anthropic()
     kwargs: dict = {}
     # Claude 4.6+ models support adaptive thinking; older ones reject it.
@@ -96,7 +98,10 @@ def _openai(prompt: str, model: str, max_tokens: int) -> str:
     )
     if resp.status_code != 200:
         raise LLMError(f"OpenAI API error {resp.status_code}: {resp.text[:300]}")
-    return resp.json()["choices"][0]["message"]["content"]
+    text = resp.json()["choices"][0]["message"]["content"]
+    if not text:
+        raise LLMError("OpenAI API returned no text content.")
+    return text
 
 
 def _ollama(prompt: str, model: str) -> str:

@@ -102,8 +102,9 @@ tenq TICKER [-o FILE] [--provider anthropic|openai|ollama] [--model NAME]
 ```
 
 - `--no-llm` skips the narrative and outputs the cited data dossier only.
-- `--no-market` skips the indicative Yahoo Finance snapshot (needs
-  `pip install "tenq[market]"`); everything else comes straight from the SEC.
+- `--no-market` skips the indicative Yahoo Finance snapshot (needs the
+  `market` extra: `pip install "tenq[market] @ git+https://github.com/shahcolate/tenq.git"`);
+  everything else comes straight from the SEC.
 - Set `TENQ_USER_AGENT="your-app your-email@example.com"` — the SEC's fair
   access policy asks all API users to identify themselves.
 
