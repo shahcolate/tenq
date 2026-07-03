@@ -70,7 +70,46 @@ def render_financials_table(dossier: Dossier) -> str:
         label = s.label + (" ($)" if s.unit == "USD/shares" else "")
         ref_str = "".join(f"[{r}]" for r in sorted(refs)) or "—"
         rows.append(f"| {label} | " + " | ".join(cells) + f" | {ref_str} |")
+
+    derived = _derived_rows(dossier, years)
+    if derived:
+        rows.extend(derived)
+        rows.append(
+            "\n_Rows marked \"derived\" are computed by tenq from the filed values "
+            "above — never by the LLM._"
+        )
     return "\n".join(rows)
+
+
+def _derived_rows(dossier: Dossier, years: list[int]) -> list[str]:
+    """Ratio/growth rows computed from the filed series — same design rule:
+    deterministic arithmetic on filed values, nothing model-generated."""
+    usd = {s.label: {p.fy: p.val for p in s.points}
+           for s in dossier.metrics if s.unit == "USD"}
+    revenue = usd.get("Revenue", {})
+
+    def pct(x: float) -> str:
+        return f"{x * 100:,.1f}%"
+
+    def row(label: str, values: dict[int, float]) -> str | None:
+        if not values:
+            return None
+        cells = [pct(values[y]) if y in values else "—" for y in years]
+        return f"| {label} | " + " | ".join(cells) + " | derived |"
+
+    growth = {y: revenue[y] / revenue[y - 1] - 1
+              for y in years if revenue.get(y) and revenue.get(y - 1)}
+    margins = {}
+    for label, source in [("Operating margin", "Operating income"),
+                          ("Net margin", "Net income")]:
+        income = usd.get(source, {})
+        margins[label] = {y: income[y] / revenue[y]
+                          for y in years if y in income and revenue.get(y)}
+
+    rows = [row("Revenue growth (YoY)", growth),
+            row("Operating margin", margins["Operating margin"]),
+            row("Net margin", margins["Net margin"])]
+    return [r for r in rows if r]
 
 
 def render_dossier_md(dossier: Dossier) -> str:

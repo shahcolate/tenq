@@ -134,7 +134,11 @@ def extract_section(text: str, start_pattern: str, end_patterns: list[str]) -> s
 
 RISK_FACTORS_START = r"item\s+1a[\.\:\s–—-]{0,4}\s*risk\s+factors"
 RISK_FACTORS_END = [r"item\s+1b[\.\:\s]", r"item\s+2[\.\:\s]"]
-MDNA_START = r"item\s+7[\.\:\s–—-]{0,4}\s*management['’]?s\s+discussion"
+MDNA_START = (
+    r"item\s+7[\.\:\s–—-]{0,4}\s*management['’]?s\s+discussion"
+    r"(?:\s+and\s+analysis(?:\s+of\s+financial\s+condition"
+    r"(?:\s+and\s+results\s+of\s+operations)?)?)?"
+)
 MDNA_END = [r"item\s+7a[\.\:\s]", r"item\s+8[\.\:\s]"]
 
 

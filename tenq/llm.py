@@ -81,9 +81,12 @@ def _anthropic(prompt: str, model: str, max_tokens: int) -> str:
 
 
 def _openai(prompt: str, model: str, max_tokens: int) -> str:
+    key = os.environ.get("OPENAI_API_KEY")
+    if not key:
+        raise LLMError("OPENAI_API_KEY is not set (required for --provider openai).")
     resp = requests.post(
         "https://api.openai.com/v1/chat/completions",
-        headers={"Authorization": f"Bearer {os.environ['OPENAI_API_KEY']}"},
+        headers={"Authorization": f"Bearer {key}"},
         json={
             "model": model,
             "max_completion_tokens": max_tokens,
